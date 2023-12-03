@@ -72,6 +72,6 @@ describe('Alex Jones NWO Wars', () => {
     await page.goto('https://alexjonesgame.com/games/1/play?commit=PLAY');
 
     // Always is up; have fun!
-    await new Promise(() => {});
+    await page.pause();
   });
 });

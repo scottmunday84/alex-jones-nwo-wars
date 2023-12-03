@@ -4,6 +4,36 @@ const {
   firefox
 } = require('@playwright/test');
 const {describe} = require("node:test");
+import {
+  SecretsManagerClient,
+  GetSecretValueCommand,
+} from "@aws-sdk/client-secrets-manager";
+const configJson = require('../config.json');
+
+const getCreds = async () => {
+  const secret_name = "alex-jones-nwo-wars/creds";
+
+  const client = new SecretsManagerClient(configJson);
+
+  let response;
+
+  try {
+    response = await client.send(
+      new GetSecretValueCommand({
+        SecretId: secret_name,
+        VersionStage: "AWSCURRENT", // VersionStage defaults to AWSCURRENT if unspecified
+      })
+    );
+  } catch (error) {
+    // For a list of exceptions thrown, see
+    // https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
+    throw error;
+  }
+
+  const secret = JSON.parse(response.SecretString);
+
+  return {userEmailText: secret.userEmail, userPasswordText: secret.userPassword};
+}
 
 describe('Alex Jones NWO Wars', () => {
   let browser;
@@ -29,13 +59,14 @@ describe('Alex Jones NWO Wars', () => {
   });
 
   test('Login and play the game; defeat the lizardnerd!!', async () => {
+    const {userEmailText, userPasswordText} = await getCreds();
     await page.goto('https://alexjonesgame.com/users/sign_in?');
     const userEmail = await page.locator('#user_email');
     const userPassword = await page.locator('#user_password');
 
     // Enter in username/password; login
-    await userEmail.type('scottmunday84@gmail.com');
-    await userPassword.type('gn9muQs1m0VVIp3');
+    await userEmail.type(userEmailText);
+    await userPassword.type(userPasswordText);
     await page.click("[data-test-id='form-action-button']");
     await page.waitForURL('https://alexjonesgame.com/');
     await page.goto('https://alexjonesgame.com/games/1/play?commit=PLAY');

@@ -1,12 +1,7 @@
 {
   "name": "alex-jones-nwo-wars",
-  "packageManager": "yarn@4.0.2",
   "scripts": {
     "play-game": "npx playwright test play.spec.js"
-  },
-  "volta": {
-    "node": "21.3.0",
-    "yarn": "4.0.2"
   },
   "devDependencies": {
     "@playwright/test": "^1.40.1",
